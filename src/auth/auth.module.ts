@@ -6,11 +6,18 @@ import { AuthService } from './auth.service';
 import { LocalGuard } from './guards/local.guard';
 import { LocalStrategy } from './strategies/local.strategy';
 import { PasetoGuard } from './guards/paseto.guard';
+import { PasetoService } from './paseto/paseto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Auth])],
   controllers: [AuthController],
-  providers: [AuthService, LocalGuard, LocalStrategy, PasetoGuard],
-  exports: [AuthModule],
+  providers: [
+    AuthService,
+    LocalGuard,
+    LocalStrategy,
+    PasetoGuard,
+    PasetoService,
+  ],
+  exports: [AuthModule, PasetoService],
 })
 export class AuthModule {}

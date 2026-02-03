@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/await-thenable */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { TokenResponse } from './dtos/token-response.dto';
 import { TokenPayload } from './dtos/token-payload.dto';
 import { ConfigService } from '@nestjs/config';
-import { V4 } from 'paseto';
+import { V3 as paseto } from 'paseto';
 
 @Injectable()
 export class PasetoService {
@@ -26,12 +27,19 @@ export class PasetoService {
   }
 
   async generateToken(payload: TokenPayload): Promise<TokenResponse> {
-    const accessToken = await V4.sign(Buffer.from(this.ACCESS_TOKEN_SECRET), payload: {
-      sub: payload.userId
-    });
-    const refreshToken = await encrypt(this.REFRESH_TOKEN_SECRET, {
-      sub: payload.userId,
-    });
+    console.log(payload);
+    const accessToken = await paseto.encrypt(
+      payload as any,
+      this.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: '15m',
+      },
+    );
+    const refreshToken = await paseto.encrypt(
+      payload as any,
+      this.REFRESH_TOKEN_SECRET,
+      { expiresIn: '15d' },
+    );
 
     return {
       accessToken,
@@ -42,9 +50,9 @@ export class PasetoService {
   async verifyAccessToken(token: string) {
     try {
       // It automatically checks if the token is expired
-      const { payload } = await decrypt(token, this.ACCESS_TOKEN_SECRET);
+      const payload = await paseto.decrypt(token, this.ACCESS_TOKEN_SECRET);
       return {
-        userId: payload.sub,
+        userId: payload,
       };
     } catch {
       throw new UnauthorizedException('Invalid Access Token');
@@ -53,7 +61,7 @@ export class PasetoService {
   async verifyRefreshToken(token: string) {
     try {
       // It automatically checks if the token is expired
-      const { payload } = await decrypt(token, this.REFRESH_TOKEN_SECRET);
+      const payload = await paseto.decrypt(token, this.REFRESH_TOKEN_SECRET);
       return {
         userId: payload.sub,
       };

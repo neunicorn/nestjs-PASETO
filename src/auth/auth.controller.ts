@@ -66,6 +66,7 @@ export class AuthController {
   @Get('me')
   @HttpCode(200)
   async me(@ReqUser() user: TokenPayload): Promise<WebResponse<TokenPayload>> {
+    console.log(user);
     return {
       code: 200,
       status: true,
