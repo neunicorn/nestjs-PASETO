@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { TokenResponse } from './dtos/token-response.dto';
 import { TokenPayload } from './dtos/token-payload.dto';
@@ -51,9 +49,7 @@ export class PasetoService {
     try {
       // It automatically checks if the token is expired
       const payload = await paseto.decrypt(token, this.ACCESS_TOKEN_SECRET);
-      return {
-        userId: payload,
-      };
+      return payload;
     } catch {
       throw new UnauthorizedException('Invalid Access Token');
     }
@@ -62,9 +58,7 @@ export class PasetoService {
     try {
       // It automatically checks if the token is expired
       const payload = await paseto.decrypt(token, this.REFRESH_TOKEN_SECRET);
-      return {
-        userId: payload.sub,
-      };
+      return payload;
     } catch {
       throw new UnauthorizedException('Invalid Access Token');
     }

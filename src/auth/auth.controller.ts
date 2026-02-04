@@ -74,4 +74,24 @@ export class AuthController {
       message: 'USER_FETCHED',
     };
   }
+
+  @Post('logout')
+  @HttpCode(200)
+  async logout(
+    @ReqUser('sub') user: string,
+    @Res() response: express.Response,
+  ): Promise<WebResponse<void>> {
+    await this.authService.logout(user);
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true, // true in production
+      sameSite: 'strict',
+    });
+
+    return {
+      code: 200,
+      status: true,
+      message: 'USER_LOGOUT',
+    };
+  }
 }

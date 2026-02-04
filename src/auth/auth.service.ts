@@ -28,7 +28,7 @@ export class AuthService {
       throw new UnauthorizedException('wrong email password');
     }
     const payload: TokenPayload = {
-      userId: auth.id,
+      sub: auth.id,
     };
     const token = await this.pasetoService.generateToken(payload);
 
@@ -45,6 +45,18 @@ export class AuthService {
         refreshToken: token.refreshToken,
       },
     };
+  }
+
+  async logout(userId: string): Promise<void> {
+    const auth = await this.authRepo.findOne({ where: { id: userId } });
+
+    if (!auth) {
+      throw new UnauthorizedException('user not found');
+    }
+
+    auth.jwtRefreshToken = '';
+
+    await this.authRepo.save(auth);
   }
 
   async findUserByEmail(email: string) {
